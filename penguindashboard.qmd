@@ -1,6 +1,8 @@
+
 ---
 title: "Penguin Population & Island Distribution"
 subtitle: "An Exploratory Data Analysis of Palmer Penguins"
+author: "Your Name"
 
 format:
   dashboard:
@@ -17,7 +19,7 @@ execute:
   message: false
 ---
 
-{python}
+```{python}
 #| label: setup
 #| include: false
 
@@ -68,50 +70,55 @@ palette = sns.color_palette(
 species_palette = dict(
     zip(species_order, palette)
 )
+```
 
 ## Row {height=20%}
 
 ### Total Penguins
 
-{python}
+```{python}
 #| content: valuebox
 #| title: "Total Penguins Observed"
 #| color: primary
 
 dict(value=total_penguins)
+```
 
 ### Penguin Species
 
-{python}
+```{python}
 #| content: valuebox
 #| title: "Number of Species"
 #| color: success
 
 dict(value=total_species)
+```
 
 ### Most Common Species
 
-{python}
+```{python}
 #| content: valuebox
 #| title: "Most Observed Species"
 #| color: info
 
 dict(value=top_species)
+```
 
 ### Most Populated Island
 
-{python}
+```{python}
 #| content: valuebox
 #| title: "Island with Most Penguins"
 #| color: warning
 
 dict(value=top_island)
+```
 
 ## Row {height=80%}
 
 ### Species Distribution
 
-{python}
+```{python}
 #| title: "Penguin Observations by Species"
 #| fig-height: 4.5
 #| fig-width: 7
@@ -177,14 +184,15 @@ ax.set_ylim(
 
 plt.tight_layout()
 plt.show()
+```
 
-*Interpretation*
+**Interpretation**
 
 Adelie penguins have the highest number of observations, with 152 penguins. Gentoo follows with 124 observations, while Chinstrap has the lowest count at 68.
 
 ### Island Distribution by Species
 
-{python}
+```{python}
 #| title: "Penguin Distribution Across Islands"
 #| fig-height: 4.5
 #| fig-width: 7
@@ -263,7 +271,8 @@ ax.tick_params(
 
 plt.tight_layout()
 plt.show()
+```
 
-*Interpretation*
+**Interpretation**
 
 Biscoe Island has the highest penguin population, with 168 observations, followed by Dream Island with 124 and Torgersen Island with 52. Gentoo penguins are found on Biscoe, Chinstrap on Dream, and Adelie on all three islands.

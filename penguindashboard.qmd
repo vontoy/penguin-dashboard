@@ -275,3 +275,282 @@ plt.show()
 **Interpretation**
 
 Biscoe Island has the highest penguin population, with 168 observations, followed by Dream Island with 124 and Torgersen Island with 52. Gentoo penguins are found on Biscoe, Chinstrap on Dream, and Adelie on all three islands.
+
+# ============================================================
+# STATISTICAL ANALYSIS OF PENGUIN DATA
+# ============================================================
+
+# Import required libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+from scipy.stats import chi2_contingency
+from statsmodels.stats.oneway import anova_oneway
+
+# Set visualization style
+sns.set_theme(style="whitegrid", font="sans-serif")
+
+# Define species colors
+species_colors = {
+    "Adelie": "#A8DADC",
+    "Chinstrap": "#8296AB",
+    "Gentoo": "#315F91"
+}
+
+# ============================================================
+# 1. DESCRIPTIVE STATISTICS
+# ============================================================
+
+# Remove missing values
+body_mass_data = data1.dropna(
+    subset=["species", "body_mass_g"]
+)
+
+# Calculate descriptive statistics by species
+body_mass_summary = (
+    body_mass_data.groupby("species")["body_mass_g"]
+    .agg(
+        Observations="count",
+        Mean="mean",
+        Median="median",
+        **{"Standard Deviation": "std"},
+        Minimum="min",
+        Maximum="max"
+    )
+    .reset_index()
+)
+
+print("\nBODY MASS DESCRIPTIVE STATISTICS")
+print("=" * 65)
+print(body_mass_summary.round(2).to_string(index=False))
+
+
+# ============================================================
+# 2. WELCH'S ONE-WAY ANOVA
+# ============================================================
+
+welch_result = anova_oneway(
+    body_mass_data["body_mass_g"],
+    groups=body_mass_data["species"],
+    use_var="unequal"
+)
+
+print("\nWELCH'S ONE-WAY ANOVA")
+print("=" * 65)
+print(f"F-statistic: {welch_result.statistic:.3f}")
+print(f"Degrees of freedom: {welch_result.df_num:.2f}, "
+      f"{welch_result.df_denom:.2f}")
+print(f"P-value: {welch_result.pvalue:.6g}")
+
+
+# ============================================================
+# 3. CHI-SQUARE TEST: SPECIES AND ISLAND
+# ============================================================
+
+species_island_data = data1.dropna(
+    subset=["species", "island"]
+)
+
+species_island_table = pd.crosstab(
+    species_island_data["species"],
+    species_island_data["island"]
+)
+
+chi_stat, chi_p, chi_df, expected = chi2_contingency(
+    species_island_table,
+    correction=False
+)
+
+print("\nCHI-SQUARE TEST")
+print("=" * 65)
+print(f"Chi-square statistic: {chi_stat:.3f}")
+print(f"Degrees of freedom: {chi_df}")
+print(f"P-value: {chi_p:.6g}")
+
+
+# ============================================================
+# 4. CRAMER'S V EFFECT SIZE
+# ============================================================
+
+n = species_island_table.values.sum()
+
+cramers_v = np.sqrt(
+    chi_stat /
+    (
+        n * min(
+            species_island_table.shape[0] - 1,
+            species_island_table.shape[1] - 1
+        )
+    )
+)
+
+print("\nCRAMER'S V")
+print("=" * 65)
+print(f"Cramer's V: {cramers_v:.3f}")
+
+
+# ============================================================
+# 5. INFERENTIAL STATISTICS SUMMARY TABLE
+# ============================================================
+
+inferential_summary = pd.DataFrame({
+    "Test": [
+        "Welch's one-way ANOVA",
+        "Chi-square test",
+        "Cramer's V"
+    ],
+    "Statistic": [
+        (
+            f"F = {welch_result.statistic:.3f}; "
+            f"df = {welch_result.df_num:.2f}, "
+            f"{welch_result.df_denom:.2f}"
+        ),
+        (
+            f"X-squared = {chi_stat:.3f}; "
+            f"df = {chi_df}"
+        ),
+        f"{cramers_v:.3f}"
+    ],
+    "P-value / Effect Size": [
+        f"{welch_result.pvalue:.4g}",
+        f"{chi_p:.4g}",
+        "Effect size"
+    ]
+})
+
+print("\nINFERENTIAL STATISTICS SUMMARY")
+print("=" * 65)
+print(inferential_summary.to_string(index=False))
+
+
+# ============================================================
+# 6. BODY MASS DISTRIBUTION BY SPECIES
+# ============================================================
+
+plt.figure(figsize=(8, 4.5))
+
+sns.boxplot(
+    data=body_mass_data,
+    x="species",
+    y="body_mass_g",
+    hue="species",
+    palette=species_colors,
+    width=0.58,
+    legend=False
+)
+
+plt.xlabel("Penguin Species", fontweight="bold")
+plt.ylabel("Body Mass (grams)", fontweight="bold")
+plt.title(
+    "Body Mass Distribution by Species",
+    fontweight="bold"
+)
+
+plt.tight_layout()
+plt.show()
+
+
+# ============================================================
+# 7. SPECIES COMPOSITION ACROSS ISLANDS
+# ============================================================
+
+# Calculate species counts and proportions
+species_island_proportions = (
+    species_island_data
+    .groupby(["island", "species"])
+    .size()
+    .reset_index(name="Count")
+)
+
+species_island_proportions["Proportion"] = (
+    species_island_proportions["Count"] /
+    species_island_proportions
+    .groupby("island")["Count"]
+    .transform("sum")
+)
+
+# Convert data into a table for plotting
+proportion_table = species_island_proportions.pivot(
+    index="island",
+    columns="species",
+    values="Proportion"
+).fillna(0)
+
+# Maintain consistent species order
+proportion_table = proportion_table.reindex(
+    columns=["Adelie", "Chinstrap", "Gentoo"],
+    fill_value=0
+)
+
+# Create proportional stacked bar chart
+ax = proportion_table.plot(
+    kind="bar",
+    stacked=True,
+    figsize=(8, 4.5),
+    color=[
+        species_colors[species]
+        for species in proportion_table.columns
+    ],
+    width=0.62,
+    edgecolor="white"
+)
+
+plt.xlabel("Island", fontweight="bold")
+plt.ylabel("Percentage of Penguins", fontweight="bold")
+plt.title(
+    "Species Composition Across Islands",
+    fontweight="bold"
+)
+
+plt.ylim(0, 1)
+
+plt.yticks(
+    np.arange(0, 1.1, 0.2),
+    [f"{int(x * 100)}%" for x in np.arange(0, 1.1, 0.2)]
+)
+
+plt.legend(
+    title="Species",
+    loc="upper center",
+    bbox_to_anchor=(0.5, -0.15),
+    ncol=3
+)
+
+plt.tight_layout()
+plt.show()
+
+
+# ============================================================
+# 8. AUTOMATIC STATISTICAL INTERPRETATION
+# ============================================================
+
+print("\nSTATISTICAL INTERPRETATION")
+print("=" * 65)
+
+if welch_result.pvalue < 0.05:
+    print(
+        "Welch's ANOVA: There is a statistically significant "
+        "difference in mean body mass among penguin species."
+    )
+else:
+    print(
+        "Welch's ANOVA: There is no statistically significant "
+        "difference in mean body mass among penguin species."
+    )
+
+if chi_p < 0.05:
+    print(
+        "Chi-square test: There is a statistically significant "
+        "association between penguin species and island."
+    )
+else:
+    print(
+        "Chi-square test: There is no statistically significant "
+        "association between penguin species and island."
+    )
+
+print(f"Cramer's V effect size: {cramers_v:.3f}")
+
+print("\nANALYSIS COMPLETED SUCCESSFULLY.")

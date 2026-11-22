@@ -17,7 +17,7 @@ execute:
   warning: false
   message: false
 ---
-
+# Overview
 ```{python}
 #| label: setup
 #| include: false
@@ -276,8 +276,7 @@ plt.show()
 
 Biscoe Island has the highest penguin population (168 observations), followed by Dream Island (124) and Torgersen Island (52). Gentoo penguins are found on Biscoe, Chinstrap on Dream, and Adelie on all three islands.
 
-
-# Statistical Analysis
+# Statistical Analysis {orientation="rows"}
 
 ```{python}
 #| include: false
@@ -292,11 +291,8 @@ from scipy import stats
 from statsmodels.stats.oneway import anova_oneway
 from IPython.display import Markdown
 
-# Load data1 (if not already loaded in an earlier page)
-data1 = sns.load_dataset("penguins")
-
-# Descriptive statistics for body mass by species
-body_mass_clean = data1.dropna(subset=["species", "body_mass_g"])
+# Reuse `penguins` loaded in the first page
+body_mass_clean = penguins.dropna(subset=["species", "body_mass_g"]).copy()
 
 body_mass_summary = (
     body_mass_clean.groupby("species", as_index=False)["body_mass_g"]
@@ -318,7 +314,7 @@ welch_result = anova_oneway(
 )
 
 # Chi-square test examines the association between species and island
-species_island_data = data1.dropna(subset=["species", "island"])
+species_island_data = penguins.dropna(subset=["species", "island"]).copy()
 species_island_table = pd.crosstab(
     species_island_data["species"], species_island_data["island"]
 )
@@ -332,8 +328,8 @@ n_total = species_island_table.to_numpy().sum()
 min_dim = min(species_island_table.shape[0] - 1, species_island_table.shape[1] - 1)
 cramers_v = np.sqrt(chi2_stat / (n_total * min_dim))
 
-palette = {"Adelie": "#A8DADC", "Chinstrap": "#8296AB", "Gentoo": "#315F91"}
-species_order = ["Adelie", "Chinstrap", "Gentoo"]
+stat_palette = {"Adelie": "#A8DADC", "Chinstrap": "#8296AB", "Gentoo": "#315F91"}
+stat_species_order = ["Adelie", "Chinstrap", "Gentoo"]
 ```
 
 ## Row {height=42%}
@@ -411,8 +407,8 @@ sns.boxplot(
     x="species",
     y="body_mass_g",
     hue="species",
-    order=species_order,
-    palette=palette,
+    order=stat_species_order,
+    palette=stat_palette,
     width=0.58,
     boxprops=dict(alpha=0.9, edgecolor="white"),
     medianprops=dict(color="white", linewidth=1.5),
@@ -454,7 +450,7 @@ species_island_props = (
         species_island_data["species"],
         normalize="index",
     )
-    .reindex(columns=species_order)
+    .reindex(columns=stat_species_order)
 )
 
 fig, ax = plt.subplots(figsize=(8, 4.5))
@@ -463,7 +459,7 @@ species_island_props.plot(
     kind="bar",
     stacked=True,
     width=0.62,
-    color=[palette[sp] for sp in species_order],
+    color=[stat_palette[sp] for sp in stat_species_order],
     edgecolor="white",
     linewidth=1,
     ax=ax,

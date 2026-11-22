@@ -294,6 +294,8 @@ from scipy import stats
 from statsmodels.stats.oneway import anova_oneway
 from IPython.display import Markdown
 
+data1 = sns.load_dataset("penguins")
+
 # Ensure `data1` is loaded (e.g., data1 = sns.load_dataset("penguins"))
 
 # Descriptive statistics for body mass by species

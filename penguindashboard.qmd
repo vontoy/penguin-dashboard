@@ -276,20 +276,7 @@ plt.show()
 
 Biscoe Island has the highest penguin population, with 168 observations, followed by Dream Island with 124 and Torgersen Island with 52. Gentoo penguins are found on Biscoe, Chinstrap on Dream, and Adelie on all three islands.
 
-# ============================================================
-# STATISTICAL ANALYSIS OF PENGUIN DATA
-# ============================================================
-
-# Import required libraries
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
-
-from scipy.stats import chi2_contingency
-from statsmodels.stats.oneway import anova_oneway
-
-# Set visualization style
+ Set visualization style
 sns.set_theme(style="whitegrid", font="sans-serif")
 
 # Define species colors
@@ -299,9 +286,6 @@ species_colors = {
     "Gentoo": "#315F91"
 }
 
-# ============================================================
-# 1. DESCRIPTIVE STATISTICS
-# ============================================================
 
 # Remove missing values
 body_mass_data = data1.dropna(
@@ -327,10 +311,6 @@ print("=" * 65)
 print(body_mass_summary.round(2).to_string(index=False))
 
 
-# ============================================================
-# 2. WELCH'S ONE-WAY ANOVA
-# ============================================================
-
 welch_result = anova_oneway(
     body_mass_data["body_mass_g"],
     groups=body_mass_data["species"],
@@ -344,10 +324,6 @@ print(f"Degrees of freedom: {welch_result.df_num:.2f}, "
       f"{welch_result.df_denom:.2f}")
 print(f"P-value: {welch_result.pvalue:.6g}")
 
-
-# ============================================================
-# 3. CHI-SQUARE TEST: SPECIES AND ISLAND
-# ============================================================
 
 species_island_data = data1.dropna(
     subset=["species", "island"]
@@ -370,10 +346,6 @@ print(f"Degrees of freedom: {chi_df}")
 print(f"P-value: {chi_p:.6g}")
 
 
-# ============================================================
-# 4. CRAMER'S V EFFECT SIZE
-# ============================================================
-
 n = species_island_table.values.sum()
 
 cramers_v = np.sqrt(
@@ -391,9 +363,6 @@ print("=" * 65)
 print(f"Cramer's V: {cramers_v:.3f}")
 
 
-# ============================================================
-# 5. INFERENTIAL STATISTICS SUMMARY TABLE
-# ============================================================
 
 inferential_summary = pd.DataFrame({
     "Test": [
@@ -425,10 +394,6 @@ print("=" * 65)
 print(inferential_summary.to_string(index=False))
 
 
-# ============================================================
-# 6. BODY MASS DISTRIBUTION BY SPECIES
-# ============================================================
-
 plt.figure(figsize=(8, 4.5))
 
 sns.boxplot(
@@ -451,10 +416,6 @@ plt.title(
 plt.tight_layout()
 plt.show()
 
-
-# ============================================================
-# 7. SPECIES COMPOSITION ACROSS ISLANDS
-# ============================================================
 
 # Calculate species counts and proportions
 species_island_proportions = (
@@ -521,10 +482,6 @@ plt.legend(
 plt.tight_layout()
 plt.show()
 
-
-# ============================================================
-# 8. AUTOMATIC STATISTICAL INTERPRETATION
-# ============================================================
 
 print("\nSTATISTICAL INTERPRETATION")
 print("=" * 65)

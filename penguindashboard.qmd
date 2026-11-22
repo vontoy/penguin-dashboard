@@ -279,8 +279,6 @@ Biscoe Island has the highest penguin population (168 observations), followed by
 
 # Statistical Analysis
 
-This section examines penguin body mass across species and the relationship between penguin species and island. It includes descriptive summaries, statistical tests, effect size, and supporting visualizations.
-
 ```{python}
 #| include: false
 #| label: statistical-analysis-setup
@@ -294,9 +292,8 @@ from scipy import stats
 from statsmodels.stats.oneway import anova_oneway
 from IPython.display import Markdown
 
+# Load data1 (if not already loaded in an earlier page)
 data1 = sns.load_dataset("penguins")
-
-# Ensure `data1` is loaded (e.g., data1 = sns.load_dataset("penguins"))
 
 # Descriptive statistics for body mass by species
 body_mass_clean = data1.dropna(subset=["species", "body_mass_g"])

@@ -6,3 +6,4 @@ palmerpenguins
 jupyter
 scipy
 statsmodels
+tabulate
